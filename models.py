@@ -52,6 +52,8 @@ class Approval(Base):
 
     status = Column(String(20))
 
-    approved_by = Column(String(100))
+    comments = Column(String(255))
 
-    approved_at = Column(DateTime, default=datetime.utcnow)
+    approved_by = Column(String(100))
+    
+    approved_at = Column(DateTime)

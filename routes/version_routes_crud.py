@@ -81,6 +81,7 @@ def approve_version(
         version_id=approval.version_id,
         status="Approved",
         approved_by=approval.approved_by,
+        comments= approval.comments,
     )
 
     db.add(new_approval)
@@ -96,7 +97,8 @@ def approve_version(
 
     return {
     "message": "Version Approved",
-    "version_id": approval.version_id
+    "version_id": approval.version_id,
+    "comments": approval.comments
     }
 #reject version
 @router.post("/reject")
@@ -109,6 +111,7 @@ def reject_version(
         version_id=approval.version_id,
         status="Rejected",
         approved_by=approval.approved_by,
+        comments= approval.comments,
     )
 
     db.add(new_approval)
@@ -123,7 +126,8 @@ def reject_version(
     db.commit()
 
     return {"message": "Version Rejected",
-            "version_id": approval.version_id}
+            "version_id": approval.version_id,
+            "comments": approval.comments}
 @router.get("/compare/{version_id}")
 def compare_version(version_id: int,
                     db: Session = Depends(get_db)):
