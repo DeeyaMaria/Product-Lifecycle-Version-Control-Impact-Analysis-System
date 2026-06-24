@@ -18,3 +18,4 @@ class ApprovalUpdate(BaseModel):
     version_id: int
     approved_by: str
     comments: str | None = None
+

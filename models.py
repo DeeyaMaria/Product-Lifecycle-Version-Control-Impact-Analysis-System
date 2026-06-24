@@ -57,3 +57,5 @@ class Approval(Base):
     approved_by = Column(String(100))
     
     approved_at = Column(DateTime)
+
+    

@@ -12,13 +12,36 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.post("/versions/create")
-def create_version(version: VersionCreate,
-                   db: Session = Depends(get_db)):
+@router.post("/versions/create/{product_id}")
+def create_version(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+
+    latest_version = (
+        db.query(ProductVersion)
+        .filter(ProductVersion.product_id == product_id)
+        .order_by(ProductVersion.id.desc())
+        .first()
+    )
+
+    if latest_version is None:
+        next_version = "v1.0"
+    else:
+        current = latest_version.version_number
+
+        # remove "v"
+        version_num = current.replace("v", "")
+
+        major, minor = version_num.split(".")
+
+        next_minor = int(minor) + 1
+
+        next_version = f"v{major}.{next_minor}"
 
     new_version = ProductVersion(
-        product_id=version.product_id,
-        version_number=version.version_number,
+        product_id=product_id,
+        version_number=next_version,
         status="Pending"
     )
 
@@ -27,9 +50,11 @@ def create_version(version: VersionCreate,
     db.refresh(new_version)
 
     return {
-        "message": "Version created",
-        "id": new_version.id
+        "message": "Version created successfully",
+        "id": new_version.id,
+        "version_number": next_version
     }
+
 @router.get("/versions/{product_id}")
 def get_versions(product_id: int,
                  db: Session = Depends(get_db)):
@@ -150,3 +175,4 @@ def compare_version(version_id: int,
 @router.get("/approvals")
 def get_approvals(db: Session = Depends(get_db)):
     return db.query(Approval).all()
+
