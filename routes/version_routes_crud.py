@@ -9,6 +9,8 @@ from schemas import ChangeLogCreate
 from models import Approval
 from schemas import ApprovalUpdate
 from fastapi import APIRouter
+import requests
+
 
 router = APIRouter()
 
@@ -176,3 +178,69 @@ def compare_version(version_id: int,
 def get_approvals(db: Session = Depends(get_db)):
     return db.query(Approval).all()
 
+
+@router.post("/versions/rollback/{version_id}")
+def rollback_version(
+    version_id: int,
+    db: Session = Depends(get_db)
+):
+
+    version = db.query(ProductVersion).filter(
+        ProductVersion.id == version_id
+    ).first()
+
+    versions_to_delete = db.query(ProductVersion).filter(
+    ProductVersion.product_id == version.product_id,
+    ProductVersion.id >= version_id
+    ).all()
+
+    logs = []
+
+    logs = []
+
+    versions_to_delete.sort(
+    key=lambda x: x.id,
+    reverse=True
+)
+
+    for v in versions_to_delete:
+
+     version_logs = db.query(ChangeLog).filter(
+        ChangeLog.version_id == v.id
+    ).all()
+
+    logs.extend(version_logs)
+
+    if not version:
+        return {"message": "Version not found"}
+
+    for log in logs:
+
+     if log.reason == "Requirement Added":
+
+        requests.delete(
+            f"http://127.0.0.1:8001/requirements/{log.requirement_id}"
+        )
+
+     elif log.reason == "Requirement Updated":
+
+        requests.put(
+            f"http://127.0.0.1:8001/requirements/rollback/{log.requirement_id}",
+            json={
+                "title": log.field_name,
+                "value": log.old_value
+            }
+        )
+
+    for log in logs:
+        db.delete(log)
+
+    for v in versions_to_delete:
+      db.delete(v)
+
+    db.commit()
+
+    return {
+        "message": "Rollback successful",
+        "deleted_version_id": version_id
+    }

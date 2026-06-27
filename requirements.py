@@ -219,3 +219,27 @@ def delete_requirement(requirement_id: int):
     return {
         "message": "Requirement Deleted"
     }
+
+@app.put("/requirements/rollback/{requirement_id}")
+def rollback_requirement(
+    requirement_id: int,
+    req: RequirementUpdate
+):
+
+    cursor.execute(
+        """
+        UPDATE requirements
+        SET value = %s
+        WHERE requirement_id = %s
+        """,
+        (
+            req.value,
+            requirement_id
+        )
+    )
+
+    conn.commit()
+
+    return {
+        "message": "Requirement restored"
+    }

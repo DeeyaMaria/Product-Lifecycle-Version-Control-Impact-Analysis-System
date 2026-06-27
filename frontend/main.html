@@ -685,6 +685,10 @@ async function loadVersions(){
                     Details
                 </button>
 
+                 <button class="btn btn-dark btn-sm" onclick="rollbackVersion(${v.id})">
+                 Rollback
+               </button>
+
             </td>
             
         </tr>
@@ -873,6 +877,28 @@ async function viewApproval(versionId){
         );
 
     modal.show();
+}
+
+async function rollbackVersion(versionId){
+
+    const confirmAction = confirm(
+        "Are you sure you want to rollback this version?"
+    );
+
+    if(!confirmAction) return;
+
+    const response = await fetch(
+        `http://127.0.0.1:8000/versions/rollback/${versionId}`,
+        {
+            method: "POST"
+        }
+    );
+
+    const result = await response.json();
+
+    alert(result.message);
+
+    loadVersions();   // refresh UI
 }
 
 </script>
