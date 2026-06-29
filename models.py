@@ -58,4 +58,13 @@ class Approval(Base):
     
     approved_at = Column(DateTime)
 
-    
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String(50))
+       
+    price = Column(Integer)
+       
+    user_id = Column(Integer)

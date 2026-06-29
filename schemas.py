@@ -19,3 +19,11 @@ class ApprovalUpdate(BaseModel):
     approved_by: str
     comments: str | None = None
 
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    price: float
+    user_id: int
+
+    class Config:
+        from_attributes = True

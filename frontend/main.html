@@ -23,6 +23,9 @@ body{
     background:#0f172a;
     color:white;
     padding:20px;
+
+    display:flex;
+    flex-direction:column;
 }
 
 .sidebar h2{
@@ -41,7 +44,14 @@ body{
 .sidebar a:hover{
     background:#1e293b;
 }
+.logout-btn{
+    margin-top:auto;
+    background:#dc3545;
+}
 
+.logout-btn:hover{
+    background:#bb2d3b;
+}
 .main{
     margin-left:260px;
     padding:30px;
@@ -94,6 +104,7 @@ body{
     margin-top:20px;
 }
 
+
 </style>
 </head>
 
@@ -101,13 +112,22 @@ body{
 
 <div class="sidebar">
 
-    <h2>VersionForge</h2>
+<h2>VersionForge</h2>
 
-<a href="#" onclick="showRequirements()">📋 Requirements</a>
+<p id="welcomeUser" class="text-light"></p>
 
+<a href="dashboard.html"> 👉 Products</a>
 
+<a href="#" onclick="showRequirements()"> 👉 Requirements</a>
 
-<a href="#" onclick="showVersions()">📦 Versions</a>
+<a href="#" onclick="showVersions()"> 👉 Versions</a>
+
+<hr>
+    <button
+        class="btn btn-danger w-100"
+        onclick="logout()">
+        Logout
+    </button>
 </div>
 
 <div class="main">
@@ -402,10 +422,24 @@ body{
 
 </div>
 
-    <script>
+<script>
+const token = localStorage.getItem("token");
 
+if (!token) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+}
+const payload = JSON.parse(atob(token.split(".")[1]));
+
+console.log(payload);
 const API_URL = "http://127.0.0.1:8001";
+document.getElementById("welcomeUser").innerHTML=`
+<h6>Welcome</h6>
 
+<b>${payload.email}</b>
+
+<div class="text-info">${payload.role}</div>
+`;
 async function addRequirement(){
 
     const data = {
@@ -752,8 +786,7 @@ async function compareVersion(versionId){
 }
 async function approveVersion(versionId){
 
-    const approvedBy =
-        prompt("Approved By:");
+    const approvedBy = payload.email;
 
     if(!approvedBy) return;
 
@@ -785,8 +818,7 @@ async function approveVersion(versionId){
 }
 async function rejectVersion(versionId){
 
-    const approvedBy =
-        prompt("Rejected By:");
+    const approvedBy = payload.email;
 
     if(!approvedBy) return;
 
@@ -899,6 +931,17 @@ async function rollbackVersion(versionId){
     alert(result.message);
 
     loadVersions();   // refresh UI
+}
+function logout(){
+
+    localStorage.removeItem("token");
+
+    window.location.href="login.html";
+
+}
+if(localStorage.getItem("openVersions") === "true"){
+    localStorage.removeItem("openVersions");
+    showVersions();
 }
 
 </script>
