@@ -2,4 +2,9 @@ fastapi
 uvicorn
 sqlalchemy
 pymysql
+python-jose[cryptography]
 pydantic
+python-multipart
+passlib[bcrypt]
+cryptography
+requests
