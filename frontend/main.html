@@ -462,6 +462,10 @@ async function addRequirement(){
     );
 
     const result = await response.json();
+    if (!response.ok) {
+    alert(result.detail);
+    return;
+}
 
     const modal =
     bootstrap.Modal.getInstance(

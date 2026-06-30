@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from db import conn, cursor
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 import requests
 
 app = FastAPI()
@@ -42,6 +43,30 @@ def home():
 
 @app.post("/requirements")
 def add_requirement(req: Requirement):
+    import requests
+    from fastapi import HTTPException
+
+    # Get all products from Product Service
+    response = requests.get("http://127.0.0.1:8002/products")
+
+    if response.status_code != 200:
+     raise HTTPException(
+        status_code=500,
+        detail="Product service unavailable"
+    )
+
+    products = response.json()
+
+# Check if product_id exists in list
+    product_exists = any(
+    p["id"] == req.product_id for p in products
+)
+
+    if not product_exists:
+     raise HTTPException(
+        status_code=404,
+        detail="Product not found"
+    )
 
     query = """
     INSERT INTO requirements
